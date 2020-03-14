@@ -8,5 +8,6 @@ namespace YS.EventBus
         public string Exchange { get; set; }
         public EventType EventType { get; set; }
         public T Data { get; set; }
+
     }
 }

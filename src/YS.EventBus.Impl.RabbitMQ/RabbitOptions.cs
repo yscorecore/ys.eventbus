@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 
 namespace YS.EventBus.Impl.RabbitMQ
 {
+    [OptionsClass]
     public class RabbitOptions
     {
         public string UserName { get; set; }

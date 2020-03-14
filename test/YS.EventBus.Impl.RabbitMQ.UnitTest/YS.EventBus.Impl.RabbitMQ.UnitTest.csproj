@@ -13,4 +13,9 @@
     <PackageReference Include="coverlet.collector" Version="1.0.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\YS.EventBus.Impl.RabbitMQ\YS.EventBus.Impl.RabbitMQ.csproj" />
+    <ProjectReference Include="..\YS.EventBus.Core.UnitTest\YS.EventBus.Core.UnitTest.csproj" />
+  </ItemGroup>
+
 </Project>
