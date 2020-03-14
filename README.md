@@ -1,4 +1,5 @@
-# Template
-A .Net core peoject template 
+# YS.Event
 
-![build](https://github.com/yscorecore/RepoTemplate/workflows/build/badge.svg)
+A global event bus, use message queue to produce and consume messages.
+
+[![build](https://github.com/yscorecore/YS.Event/workflows/build/badge.svg)](https://github.com/yscorecore/ys.event/actions?query=workflow%3Abuild)
