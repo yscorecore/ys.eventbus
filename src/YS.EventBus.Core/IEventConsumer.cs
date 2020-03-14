@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace YS.Event.Core
+namespace YS.EventBus
 {
     public interface IEventConsumer
     {

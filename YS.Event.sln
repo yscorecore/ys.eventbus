@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.29424.173
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{B62C779D-7B6F-408B-B2DF-0482E534369E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YS.Event.Core", "src\YS.Event.Core\YS.Event.Core.csproj", "{4A22836F-E2C7-42AD-9A56-E6C528566CF2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YS.EventBus.Core", "src\YS.EventBus.Core\YS.EventBus.Core.csproj", "{4A22836F-E2C7-42AD-9A56-E6C528566CF2}"
 EndProject
 Global
 	GlobalSection(SolutionProperties) = preSolution
