@@ -5,7 +5,7 @@ namespace YS.EventBus
 {
     public interface IEventProducer
     {
-        Task Publish<T>(T @event);
-        Task Broadcast<T>(T @enent);
+        Task Publish<T>(T eventData);
+        Task Broadcast<T>(T enentData);
     }
 }
