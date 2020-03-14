@@ -7,12 +7,7 @@ namespace YS.EventBus.Impl.RabbitMQ
     [ServiceClass]
     public class RabbitMQEventProducer : IEventProducer
     {
-        public Task Broadcast<T>(T enentData)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task Publish<T>(T eventData)
+        public Task Publish<T>(EventItem<T> eventItem)
         {
             throw new NotImplementedException();
         }
