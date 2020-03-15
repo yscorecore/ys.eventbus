@@ -1,60 +1,80 @@
-using System;
+﻿using System;
 using System.Text;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using Microsoft.Extensions.Options;
 using System.Diagnostics;
+using System.Collections.Generic;
+using System.Linq;
+using Microsoft.Extensions.ObjectPool;
 
 namespace YS.EventBus.Impl.RabbitMQ
 {
     [ServiceClass(typeof(TestConsumer))]
     public class TestConsumer
     {
-        private readonly RabbitOptions _options;
+        private readonly RabbitOptions _rabbitSettings;
 
-        private readonly IConnection _connection;
+        private readonly EventBusOptions _eventBusSettings;
 
-        public TestConsumer(IOptions<RabbitOptions> optionsAccs)
+
+        private readonly IDictionary<string, IEventConsumer> allConsumers;
+
+
+        private IConnection _connection;
+        private IModel channelForEventing;
+        public TestConsumer(IPooledObjectPolicy<IModel> objectPolicy,IOptions<EventBusOptions> eventBusOptions, IOptions<RabbitOptions> rabbitOptions, IEnumerable<IEventConsumer> eventConsumers)
         {
-            _options = optionsAccs.Value;
-            _connection = GetConnection();
+            _eventBusSettings = eventBusOptions.Value;
+            _rabbitSettings = rabbitOptions.Value;
+            allConsumers = eventConsumers.ToDictionary(p => p.Exchange);
         }
 
         private IConnection GetConnection()
         {
             var factory = new ConnectionFactory()
             {
-                HostName = _options.HostName,
-                UserName = _options.UserName,
-                Password = _options.Password,
-                Port = _options.Port,
-                VirtualHost = _options.VHost,
+                HostName = _rabbitSettings.HostName,
+                UserName = _rabbitSettings.UserName,
+                Password = _rabbitSettings.Password,
+                Port = _rabbitSettings.Port,
+                VirtualHost = _rabbitSettings.VHost,
             };
 
             return factory.CreateConnection();
         }
-        IModel channelForEventing;
+
         public void ReceiveMessagesWithEvents()
         {
-            IConnection connection = GetConnection();
-            channelForEventing = connection.CreateModel();
-            channelForEventing.BasicQos(0, 1, false);
+            _connection = GetConnection();
+            channelForEventing = _connection.CreateModel();
+            channelForEventing.BasicQos(0, _eventBusSettings.MaxConsumerCount, false);
             DeclareQueueAndBind(channelForEventing);
             BasicConsume(channelForEventing);
         }
-        void DeclareQueueAndBind(IModel channelForEventing){
-            channelForEventing.QueueDeclare("xxx", false, false, false, null);
-            channelForEventing.QueueBind("xxx", "mycompany.queues.accounting", "mycompany.queues.accounting", null);
-
-            channelForEventing.QueueDeclare("yyy", false, false, false, null);
-            channelForEventing.QueueBind("yyy", "mycompany.queues.accounting2", "mycompany.queues.accounting2", null);
+        private string BuildQueueName(string exchangeName)
+        {
+            return $"q.{exchangeName}";
         }
-        void BasicConsume(IModel channelForEventing){
-             //exposes the message handling functions as events
-            EventingBasicConsumer eventingBasicConsumer = new EventingBasicConsumer(channelForEventing);
+        void DeclareQueueAndBind(IModel channelForEventing)
+        {
+            foreach (var exchange in allConsumers.Keys)
+            {
+                var queueName = BuildQueueName(exchange);
+                channelForEventing.QueueDeclare(queueName, false, false, false, null);
+                channelForEventing.QueueBind(queueName, exchange, exchange, null);
+            }
+        }
+        void BasicConsume(IModel channelForEventing)
+        {
+            //exposes the message handling functions as events
+            var eventingBasicConsumer = new EventingBasicConsumer(channelForEventing);
             eventingBasicConsumer.Received += EventingBasicConsumer_Received;
-            channelForEventing.BasicConsume("xxx", false, eventingBasicConsumer);
-            channelForEventing.BasicConsume("yyy", false, eventingBasicConsumer);
+            foreach (var exchange in allConsumers.Keys)
+            {
+                var queueName = BuildQueueName(exchange);
+                channelForEventing.BasicConsume(queueName, false, eventingBasicConsumer);
+            }
         }
         void EventingBasicConsumer_Received(object sender, BasicDeliverEventArgs basicDeliveryEventArgs)
         {
@@ -66,14 +86,30 @@ namespace YS.EventBus.Impl.RabbitMQ
             Debug.WriteLine(string.Concat("Delivery tag: ", basicDeliveryEventArgs.DeliveryTag));
             Debug.WriteLine(string.Concat("Message: ", Encoding.UTF8.GetString(basicDeliveryEventArgs.Body)));
             //channelForEventing.BasicNack(basicDeliveryEventArgs.DeliveryTag, false,true);
-            channelForEventing.BasicAck(basicDeliveryEventArgs.DeliveryTag, false);
+            if (allConsumers.TryGetValue(basicDeliveryEventArgs.Exchange, out var consumer))
+            {
+                if (consumer.HandlerData(basicDeliveryEventArgs.Body).Result)
+                {
+                    channelForEventing.BasicAck(basicDeliveryEventArgs.DeliveryTag, false);
+                }
+                else
+                {
+                    // requeue
+                    channelForEventing.BasicReject(basicDeliveryEventArgs.DeliveryTag, true);
+                }
+            }
+            else
+            {
+                // requeue
+                channelForEventing.BasicReject(basicDeliveryEventArgs.DeliveryTag, true);
+            }
         }
 
         public void Dispose()
         {
             channelForEventing.Close();
             _connection.Close();
-           // base.Dispose();
+            // base.Dispose();
         }
     }
 }

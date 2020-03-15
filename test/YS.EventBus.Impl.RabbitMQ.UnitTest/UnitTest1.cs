@@ -5,6 +5,8 @@ using RabbitMQ.Client;
 using System.Threading.Tasks;
 using System.Threading;
 using System;
+using YS.EventBus.Core;
+using Microsoft.Extensions.DependencyInjection;
 namespace YS.EventBus.Impl.RabbitMQ.UnitTest
 {
     [TestClass]
@@ -15,6 +17,10 @@ namespace YS.EventBus.Impl.RabbitMQ.UnitTest
             {
                 ["Rabbit:UserName"] = "rabbitmq",
                 ["Rabbit:Password"] = "rabbitmq",
+            }, (builder, sc) =>
+            {
+                sc.AddSingleton<IEventConsumer, DataConsumer>();
+
             })
         {
         }
@@ -37,7 +43,7 @@ namespace YS.EventBus.Impl.RabbitMQ.UnitTest
                         producer.Publish(new EventItem<Data>()
                         {
                             Exchange = "mycompany.queues.accounting",
-                            EventType = EventType.Queue ,
+                            EventType = EventType.Queue,
                             Data = new Data()
                             {
                                 MyProperty = DateTime.Now.Second,
@@ -46,30 +52,26 @@ namespace YS.EventBus.Impl.RabbitMQ.UnitTest
                         });
                         Task.Delay(1000).Wait();
                     }
-                }),
-                Task.Run(() =>
-                {
-                    for (int i = 0; i < 10; i++)
-                    {
-                        producer.Publish(new EventItem<Data>()
-                        {
-                            Exchange = "mycompany.queues.accounting2",
-                            EventType = EventType.Queue ,
-                            Data = new Data()
-                            {
-                                MyProperty =123,
-                                MyProperty2 = DateTime.Now.ToString()
-                            }
-                        });
-                        Task.Delay(1500).Wait();
-                    }
                 })
+                
             );
         }
         public class Data
         {
             public int MyProperty { get; set; }
             public string MyProperty2 { get; set; }
+        }
+        public class DataConsumer : BaseEventConsumer<Data>
+        {
+            public DataConsumer():base("mycompany.queues.accounting")
+            {
+
+            }
+            protected override Task<bool> Handler(Data data)
+            {
+                Console.WriteLine($"{data.MyProperty}_{data.MyProperty2}");
+                return Task.FromResult(true);
+            }
         }
     }
 }

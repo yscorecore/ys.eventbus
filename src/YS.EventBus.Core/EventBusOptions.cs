@@ -1,11 +1,11 @@
-using System;
-using System.Threading.Tasks;
+﻿using System;
 
 namespace YS.EventBus
 {
+    [OptionsClass]
     public class EventBusOptions
     {
-        public int MaxConsumerCount {get;set;}=16;
+        public ushort MaxConsumerCount { get; set; } = 16;
     }
-    
+
 }
