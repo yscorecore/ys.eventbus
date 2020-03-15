@@ -1,14 +1,12 @@
 ﻿using System;
-using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.ObjectPool;
 using RabbitMQ.Client;
-using System.Text.Json;
-using Microsoft.Extensions.DependencyInjection;
 namespace YS.EventBus.Impl.RabbitMQ
 {
 
-    [ServiceClass(Lifetime = ServiceLifetime.Singleton)]
+    [HostServiceClass]
     public class RabbitMQEventProducer : IEventProducer
     {
         private readonly DefaultObjectPool<IModel> _objectPool;
@@ -16,7 +14,7 @@ namespace YS.EventBus.Impl.RabbitMQ
         {
             _objectPool = new DefaultObjectPool<IModel>(objectPolicy, Environment.ProcessorCount * 2);
         }
-        public Task Publish<T>(EventItem<T> eventItem)
+        public Task Publish(EventItem eventItem)
         {
             if (eventItem == null)
             {
@@ -31,12 +29,11 @@ namespace YS.EventBus.Impl.RabbitMQ
             {
                 var exchangeType = eventItem.EventType == EventType.Broadcast ? ExchangeType.Fanout : ExchangeType.Direct;
                 channel.ExchangeDeclare(eventItem.Exchange, exchangeType, true, false, null);
-                var sendBytes = JsonSerializer.SerializeToUtf8Bytes(eventItem.Data);
 
                 var properties = channel.CreateBasicProperties();
                 properties.Persistent = true;
 
-                channel.BasicPublish(eventItem.Exchange, eventItem.Exchange, properties, sendBytes);
+                channel.BasicPublish(eventItem.Exchange, eventItem.Exchange, properties, eventItem.Data);
                 return Task.CompletedTask;
             }
             finally

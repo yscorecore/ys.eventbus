@@ -5,6 +5,6 @@ namespace YS.EventBus
 {
     public interface IEventProducer
     {
-        Task Publish<T>(EventItem<T> eventItem);
+        Task Publish(EventItem eventItem);
     }
 }

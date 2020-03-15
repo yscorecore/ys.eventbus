@@ -9,6 +9,7 @@
     <PackageReference Include="RabbitMQ.Client" Version="5.1.2" />
     <PackageReference Include="System.Text.Json" Version="4.7.1" />
     <PackageReference Include="YS.Knife.Core" Version="1.1.2" />
+    <PackageReference Include="YS.Knife.HostedService" Version="1.1.2" />
   </ItemGroup>
 
   <PropertyGroup>

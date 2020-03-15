@@ -124,6 +124,10 @@ dotnet_code_quality.CA1062.exclude_extension_method_this_parameter = false
 ###############################
 # VB Coding Conventions       #
 ###############################
+
+# CA1819: 属性不应返回数组
+dotnet_diagnostic.CA1819.severity = silent
+
 [*.vb]
 # Modifier preferences
 visual_basic_preferred_modifier_order = Partial,Default,Private,Protected,Public,Friend,NotOverridable,Overridable,MustOverride,Overloads,Overrides,MustInherit,NotInheritable,Static,Shared,Shadows,ReadOnly,WriteOnly,Dim,Const,WithEvents,Widening,Narrowing,Custom,Async:suggestion

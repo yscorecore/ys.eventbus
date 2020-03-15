@@ -6,28 +6,32 @@ using RabbitMQ.Client;
 
 namespace YS.EventBus.Impl.RabbitMQ
 {
-    [ServiceClass(Lifetime=ServiceLifetime.Singleton)]
+    [ServiceClass(Lifetime = ServiceLifetime.Singleton)]
     public class RabbitModelPooledObjectPolicy : IPooledObjectPolicy<IModel>
     {
-        private readonly RabbitOptions _options;
+        private readonly RabbitOptions rabbitSettings;
 
-        private readonly IConnection _connection;
+        private readonly IConnection connection;
 
-        public RabbitModelPooledObjectPolicy(IOptions<RabbitOptions> optionsAccs)
+        public RabbitModelPooledObjectPolicy(IOptions<RabbitOptions> rabbitOptions)
         {
-            _options = optionsAccs.Value;
-            _connection = GetConnection();
+            if (rabbitOptions == null)
+            {
+                throw new ArgumentNullException(nameof(rabbitOptions));
+            }
+            rabbitSettings = rabbitOptions.Value;
+            connection = GetConnection();
         }
 
         private IConnection GetConnection()
         {
             var factory = new ConnectionFactory()
             {
-                HostName = _options.HostName,
-                UserName = _options.UserName,
-                Password = _options.Password,
-                Port = _options.Port,
-                VirtualHost = _options.VHost,
+                HostName = rabbitSettings.HostName,
+                UserName = rabbitSettings.UserName,
+                Password = rabbitSettings.Password,
+                Port = rabbitSettings.Port,
+                VirtualHost = rabbitSettings.VHost,
             };
 
             return factory.CreateConnection();
@@ -35,12 +39,12 @@ namespace YS.EventBus.Impl.RabbitMQ
 
         public IModel Create()
         {
-            return _connection.CreateModel();
+            return connection.CreateModel();
         }
 
         public bool Return(IModel obj)
         {
-            if (obj.IsOpen)
+            if (obj != null && obj.IsOpen)
             {
                 return true;
             }

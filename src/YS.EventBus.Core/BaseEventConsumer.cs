@@ -23,7 +23,7 @@ namespace YS.EventBus
                 T data = this.OnDeserialize(bytes);
                 return await Handler(data);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return false;
             }
