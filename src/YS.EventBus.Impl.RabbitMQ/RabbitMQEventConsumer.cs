@@ -1,31 +1,33 @@
 ﻿using System;
-using System.Text;
-using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
-using Microsoft.Extensions.Options;
-using System.Diagnostics;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Extensions.Hosting;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
 
 namespace YS.EventBus.Impl.RabbitMQ
 {
-    [ServiceClass(typeof(RabbitMQEventConsumer))]
-    public sealed class RabbitMQEventConsumer:BackgroundService
+    [HostServiceClass]
+    public sealed class RabbitMQEventConsumer : BackgroundService
     {
-        private readonly RabbitOptions _rabbitSettings;
+        private readonly RabbitOptions rabbitSettings;
 
-        private readonly EventBusOptions _eventBusSettings;
+        private readonly EventBusOptions eventBusSettings;
 
         private readonly IDictionary<string, IEventConsumer> allConsumers;
+
+        private readonly ILogger logger;
 
         private List<string> consumerTags = new List<string>();
 
         private IConnection connection;
         private IModel channel;
-        public RabbitMQEventConsumer(IOptions<EventBusOptions> eventBusOptions, IOptions<RabbitOptions> rabbitOptions, IEnumerable<IEventConsumer> eventConsumers)
+        public RabbitMQEventConsumer(ILogger<RabbitMQEventConsumer> logger, IOptions<EventBusOptions> eventBusOptions, IOptions<RabbitOptions> rabbitOptions, IEnumerable<IEventConsumer> eventConsumers)
         {
             if (eventBusOptions == null)
             {
@@ -35,20 +37,21 @@ namespace YS.EventBus.Impl.RabbitMQ
             {
                 throw new ArgumentNullException(nameof(rabbitOptions));
             }
-            _eventBusSettings = eventBusOptions.Value;
-            _rabbitSettings = rabbitOptions.Value;
-            allConsumers = eventConsumers.ToDictionary(p => p.Exchange);
+            this.logger = logger;
+            this.eventBusSettings = eventBusOptions.Value;
+            this.rabbitSettings = rabbitOptions.Value;
+            this.allConsumers = eventConsumers.ToDictionary(p => p.Exchange);
         }
 
         private IConnection InitConnection()
         {
             var factory = new ConnectionFactory()
             {
-                HostName = _rabbitSettings.HostName,
-                UserName = _rabbitSettings.UserName,
-                Password = _rabbitSettings.Password,
-                Port = _rabbitSettings.Port,
-                VirtualHost = _rabbitSettings.VHost,
+                HostName = rabbitSettings.HostName,
+                UserName = rabbitSettings.UserName,
+                Password = rabbitSettings.Password,
+                Port = rabbitSettings.Port,
+                VirtualHost = rabbitSettings.VHost,
             };
             return factory.CreateConnection();
         }
@@ -58,7 +61,7 @@ namespace YS.EventBus.Impl.RabbitMQ
         {
             connection = InitConnection();
             channel = connection.CreateModel();
-            channel.BasicQos(0, _eventBusSettings.MaxConsumerCount, false);
+            channel.BasicQos(0, eventBusSettings.MaxConsumerCount, false);
         }
         private void DeclareQueueAndBind()
         {
@@ -75,7 +78,7 @@ namespace YS.EventBus.Impl.RabbitMQ
             {
                 consumerTags.Clear();
                 var eventingBasicConsumer = new EventingBasicConsumer(this.channel);
-                eventingBasicConsumer.Received += EventingBasicConsumer_Received;
+                eventingBasicConsumer.Received += OnConsumeDataReceived;
                 foreach (var exchange in allConsumers.Keys)
                 {
                     var queueName = $"q.{exchange}";
@@ -83,9 +86,8 @@ namespace YS.EventBus.Impl.RabbitMQ
                     consumerTags.Add(consumeTag);
                 }
             }
-
         }
-        private  void CancelConsume()
+        private void CancelConsume()
         {
             lock (this)
             {
@@ -97,31 +99,33 @@ namespace YS.EventBus.Impl.RabbitMQ
             }
 
         }
-        void EventingBasicConsumer_Received(object sender, BasicDeliverEventArgs basicDeliveryEventArgs)
+        private void OnConsumeDataReceived(object sender, BasicDeliverEventArgs e)
         {
-            IBasicProperties basicProperties = basicDeliveryEventArgs.BasicProperties;
-            Console.WriteLine("Message received by the event based consumer. Check the debug window for details.");
-            Debug.WriteLine(string.Concat("Message received from the exchange ", basicDeliveryEventArgs.Exchange));
-            Debug.WriteLine(string.Concat("Consumer tag: ", basicDeliveryEventArgs.ConsumerTag));
-            Debug.WriteLine(string.Concat("Delivery tag: ", basicDeliveryEventArgs.DeliveryTag));
-            Debug.WriteLine(string.Concat("Message: ", Encoding.UTF8.GetString(basicDeliveryEventArgs.Body)));
-            //channelForEventing.BasicNack(basicDeliveryEventArgs.DeliveryTag, false,true);
-            if (allConsumers.TryGetValue(basicDeliveryEventArgs.Exchange, out var consumer))
+            if (logger.IsEnabled(LogLevel.Information))
             {
-                if (consumer.HandlerData(basicDeliveryEventArgs.Body).Result)
+                logger.LogInformation("Message received from the exchange {exchange}", e.Exchange);
+                logger.LogInformation("Consumer tag: {consumerTag}", e.ConsumerTag);
+                logger.LogInformation("Delivery tag: {deliveryTag}", e.DeliveryTag);
+                logger.LogInformation("Message: {message}", Encoding.UTF8.GetString(e.Body));
+            }
+
+            //channelForEventing.BasicNack(basicDeliveryEventArgs.DeliveryTag, false,true);
+            if (allConsumers.TryGetValue(e.Exchange, out var consumer))
+            {
+                if (consumer.HandlerData(e.Body).Result)
                 {
-                    channel.BasicAck(basicDeliveryEventArgs.DeliveryTag, false);
+                    channel.BasicAck(e.DeliveryTag, false);
                 }
                 else
                 {
                     // requeue
-                    channel.BasicReject(basicDeliveryEventArgs.DeliveryTag, true);
+                    channel.BasicReject(e.DeliveryTag, true);
                 }
             }
             else
             {
                 // requeue
-                channel.BasicReject(basicDeliveryEventArgs.DeliveryTag, true);
+                channel.BasicReject(e.DeliveryTag, true);
             }
         }
 

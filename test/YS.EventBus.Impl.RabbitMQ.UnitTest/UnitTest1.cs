@@ -7,6 +7,10 @@ using System.Threading;
 using System;
 using YS.EventBus;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using System.Diagnostics;
+using Microsoft.Extensions.Hosting;
+
 namespace YS.EventBus.Impl.RabbitMQ.UnitTest
 {
     [TestClass]
@@ -28,7 +32,7 @@ namespace YS.EventBus.Impl.RabbitMQ.UnitTest
         [TestMethod]
         public void TestMethod1()
         {
-            var test = this.Get<RabbitMQEventConsumer>();
+            var test = this.Get<IHostedService>();
 
             var producer = this.Get<IEventProducer>();
             Assert.IsNotNull(producer);
@@ -62,10 +66,16 @@ namespace YS.EventBus.Impl.RabbitMQ.UnitTest
             {
 
             }
+           
             protected override Task<bool> Handler(Data data)
             {
                 Console.WriteLine($"{data.MyProperty}_{data.MyProperty2}");
                 return Task.FromResult(true);
+            }
+
+            protected override void OnHanderException(Exception exception)
+            {
+                Debug.WriteLine(exception);
             }
         }
     }

@@ -1,7 +1,4 @@
-using System;
-using System.Threading.Tasks;
-
-namespace YS.EventBus
+﻿namespace YS.EventBus
 {
     public enum EventType
     {

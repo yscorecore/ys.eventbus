@@ -6,7 +6,7 @@ using RabbitMQ.Client;
 namespace YS.EventBus.Impl.RabbitMQ
 {
 
-    [HostServiceClass]
+    [ServiceClass(Lifetime = ServiceLifetime.Singleton)]
     public class RabbitMQEventProducer : IEventProducer
     {
         private readonly DefaultObjectPool<IModel> _objectPool;

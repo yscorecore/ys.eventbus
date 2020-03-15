@@ -8,7 +8,6 @@ namespace YS.EventBus
     {
         public BaseEventConsumer() : this(typeof(T).FullName)
         {
-
         }
         public BaseEventConsumer(string exchange)
         {
@@ -23,17 +22,21 @@ namespace YS.EventBus
                 T data = this.OnDeserialize(bytes);
                 return await Handler(data);
             }
-            catch (Exception)
+#pragma warning disable CA1031 // 不捕获常规异常类型
+            catch (Exception ex)
+#pragma warning restore CA1031 // 不捕获常规异常类型
             {
+                this.OnHanderException(ex);
                 return false;
             }
         }
-        
+
         protected virtual T OnDeserialize(byte[] bytes)
         {
             return JsonSerializer.Deserialize<T>(bytes);
         }
         protected abstract Task<bool> Handler(T data);
+        protected abstract void OnHanderException(Exception exception);
 
     }
 }
