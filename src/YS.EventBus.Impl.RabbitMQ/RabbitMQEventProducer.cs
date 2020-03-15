@@ -18,17 +18,18 @@ namespace YS.EventBus.Impl.RabbitMQ
         }
         public Task Publish<T>(EventItem<T> eventItem)
         {
-            if(eventItem==null)
+            if (eventItem == null)
             {
                 throw new ArgumentNullException(nameof(eventItem));
             }
-            if (eventItem.Data == null){
+            if (eventItem.Data == null)
+            {
                 return Task.CompletedTask;
             }
             var channel = _objectPool.Get();
             try
             {
-                var exchangeType = eventItem.EventType == EventType.Broadcast ? "direct" : "fanout";
+                var exchangeType = eventItem.EventType == EventType.Broadcast ? ExchangeType.Fanout : ExchangeType.Direct;
                 channel.ExchangeDeclare(eventItem.Exchange, exchangeType, true, false, null);
                 var sendBytes = JsonSerializer.SerializeToUtf8Bytes(eventItem.Data);
 

@@ -5,7 +5,7 @@ namespace YS.EventBus
 {
     public interface IEventConsumer
     {
-        Task Subscribe<T>();
-
+        string Exchange { get; }
+        Task<bool> HandlerData(byte[] bytes);
     }
 }

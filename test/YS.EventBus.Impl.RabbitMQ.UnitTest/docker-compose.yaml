@@ -2,7 +2,7 @@ version: '3.3'
 
 services:
   rabbitmq:
-    image: rabbitmq:3
+    image: rabbitmq:management
     environment:
       RABBITMQ_ERLANG_COOKIE: "SWQOKODSQALRPCLNMEQG"
       RABBITMQ_DEFAULT_USER: "rabbitmq"
@@ -10,3 +10,4 @@ services:
       RABBITMQ_DEFAULT_VHOST: "/"
     ports:
       - "5672:5672"
+      - "15672:15672"
