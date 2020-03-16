@@ -5,7 +5,7 @@ namespace YS.EventBus
     [OptionsClass]
     public class EventBusOptions
     {
-        public ushort MaxConsumerCount { get; set; } = 16;
+        public ushort MaxConsumerCount { get; set; } = 1;
     }
 
 }

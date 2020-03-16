@@ -6,15 +6,17 @@ namespace YS.EventBus
 {
     public abstract class BaseEventConsumer<T> : IEventConsumer
     {
-        public BaseEventConsumer() : this(typeof(T).FullName)
+        public BaseEventConsumer(EventType eventType) : this(typeof(T).FullName, eventType)
         {
         }
-        public BaseEventConsumer(string exchange)
+        public BaseEventConsumer(string exchange, EventType eventType)
         {
             this.Exchange = exchange;
+            this.EventType = eventType;
         }
-        public string Exchange { get; protected set; }
+        public virtual string Exchange { get; protected set; }
 
+        public virtual EventType EventType { get; protected set; }
         public async Task<bool> HandlerData(byte[] bytes)
         {
             try

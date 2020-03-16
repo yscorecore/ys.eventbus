@@ -6,7 +6,7 @@ namespace YS.EventBus
 {
     public static class EventProducerExtentions
     {
-        public static Task Broadcast<T>(this IEventProducer producer, T data, string exchange = null)
+        public static Task BroadcastTopic<T>(this IEventProducer producer, T data, string exchange = null)
         {
             if (producer == null)
             {
@@ -14,7 +14,7 @@ namespace YS.EventBus
             }
             return producer.Publish(new EventItem
             {
-                EventType = EventType.Broadcast,
+                EventType = EventType.Topic,
                 Data = ObjectToBytes(data),
                 Exchange = string.IsNullOrEmpty(exchange) ? typeof(T).FullName : exchange
             });

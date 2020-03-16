@@ -5,6 +5,6 @@
         // 单点事件
         Queue,
         // 广播事件
-        Broadcast,
+        Topic,
     }
 }
