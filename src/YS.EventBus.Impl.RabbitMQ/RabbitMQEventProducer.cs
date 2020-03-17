@@ -27,14 +27,12 @@ namespace YS.EventBus.Impl.RabbitMQ
             var channel = _objectPool.Get();
             try
             {
-                var exchangeType = eventItem.EventType == EventType.Topic ? ExchangeType.Fanout : ExchangeType.Direct;
-                channel.ExchangeDeclare(eventItem.Exchange, exchangeType, true, false, null);
+                channel.ExchangeDeclare(eventItem.Exchange, eventItem.EventType);
 
                 if (eventItem.EventType == EventType.Queue)
                 {
-                    // 声明queue，防止消息丢失
-                    channel.QueueDeclare(eventItem.Exchange, true, false, false, null);
-                    channel.QueueBind(eventItem.Exchange, eventItem.Exchange, eventItem.Exchange, null);
+                    // 声明queue，防止还没有Consumer的时候消息丢失
+                    channel.QueueDeclareAndBind(eventItem.Exchange);
                 }
                
 

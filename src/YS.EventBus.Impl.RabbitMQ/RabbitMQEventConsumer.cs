@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
-
+using System.Collections.Concurrent;
 namespace YS.EventBus.Impl.RabbitMQ
 {
     [HostServiceClass]
@@ -25,7 +25,7 @@ namespace YS.EventBus.Impl.RabbitMQ
 
         private readonly ILogger logger;
 
-        private IDictionary<string, IEventConsumer> consumerTags = new Dictionary<string, IEventConsumer>();
+        private IDictionary<string, IEventConsumer> consumerTags = new ConcurrentDictionary<string, IEventConsumer>();
 
         private IConnection connection;
         private IModel channel;
@@ -65,51 +65,35 @@ namespace YS.EventBus.Impl.RabbitMQ
             channel = connection.CreateModel();
             channel.BasicQos(0, eventBusSettings.MaxConsumerCount, false);
         }
-        private void DeclareQueueAndBind()
-        {
-            foreach (var consume in allConsumers)
-            {
-                var queueName = GetQueueName(consume);
-                var ok = channel.QueueDeclare(queueName, false, false, false, null);
-                channel.QueueBind(queueName, consume.Exchange, consume.Exchange, null);
 
-
-            }
-        }
         private string GetQueueName(IEventConsumer consume)
         {
+            //return $"{consume.Exchange}";
             if (consume.EventType == EventType.Queue)
             {
                 return $"{consume.Exchange}";
             }
             else
             {
-               return $"{consume.Exchange}#{consume.GetHashCode().ToString("X", CultureInfo.InvariantCulture)}";
+                return $"{consume.Exchange}#{consume.GetHashCode().ToString("X", CultureInfo.InvariantCulture)}";
             }
-           
+
         }
         private void BasicConsume()
         {
             lock (this)
             {
                 consumerTags.Clear();
-                foreach (var consume in allConsumers)
-                {
-
-                    if (consume.EventType == EventType.Topic)
-                    {
-                        var tempqueueName = GetQueueName(consume);
-                        channel.QueueDeclare(tempqueueName, false, false, false, null);
-                        channel.QueueBind(tempqueueName, consume.Exchange, consume.Exchange, null);
-                    }
-
-                }
-
                 var eventingBasicConsumer = new EventingBasicConsumer(this.channel);
                 eventingBasicConsumer.Received += OnConsumeDataReceived;
                 foreach (var consume in allConsumers)
                 {
-                    var consumeTag = channel.BasicConsume(GetQueueName(consume), false, eventingBasicConsumer);
+                    channel.ExchangeDeclare(consume.Exchange, consume.EventType);
+
+                    var queueName= consume.EventType == EventType.Queue ?
+                        channel.QueueDeclareAndBind(consume.Exchange) :
+                        channel.TemporaryQueueDeclareAndBind(consume.Exchange);
+                    var consumeTag = channel.BasicConsume(queueName, false, eventingBasicConsumer);
                     consumerTags.Add(consumeTag, consume);
                 }
             }
@@ -124,7 +108,6 @@ namespace YS.EventBus.Impl.RabbitMQ
                 }
                 consumerTags.Clear();
             }
-
         }
         private void OnConsumeDataReceived(object sender, BasicDeliverEventArgs e)
         {

@@ -33,7 +33,8 @@ namespace YS.EventBus.Impl.RabbitMQ.UnitTest
                 EnqueueData(producer, 100);
                 Task.WaitAll(
                      Task.Run(host.Run),
-                     Task.Run(async () => { await Task.Delay(1000); appLiftTime.StopApplication(); })
+                     // wait 200 ms to consume message
+                     Task.Delay(200).ContinueWith(_ => appLiftTime.StopApplication())
                 );
             }
             Assert.AreEqual(100, consume.Received.Count);
@@ -64,7 +65,8 @@ namespace YS.EventBus.Impl.RabbitMQ.UnitTest
                 EnqueueData(producer, 100);
                 Task.WaitAll(
                      Task.Run(host.Run),
-                     Task.Run(async () => { await Task.Delay(1000); appLiftTime.StopApplication(); })
+                     // wait 200 ms to consume message
+                     Task.Delay(200).ContinueWith(_ => appLiftTime.StopApplication())
                 );
             }
             Assert.IsTrue(consume1.Received.Count > 0);

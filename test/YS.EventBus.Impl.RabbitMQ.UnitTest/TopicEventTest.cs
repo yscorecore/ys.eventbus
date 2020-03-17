@@ -30,12 +30,11 @@ namespace YS.EventBus.Impl.RabbitMQ.UnitTest
             {
                 var appLiftTime = host.Get<IHostApplicationLifetime>();
                 var producer = host.Get<IEventProducer>();
-                BroadcastTopicData(producer, 1);// this dada will lost
-                Task.Delay(500).Wait();
                 Task.WaitAll(
-                     Task.Run(host.Run),
-                     Task.Run(() => { Task.Delay(500); BroadcastTopicData(producer, 1000); }),
-                     Task.Run(async () => { await Task.Delay(5000); appLiftTime.StopApplication(); })
+                    Task.Run(host.Run),
+                    // wait 500ms for the consumes ready.
+                    Task.Delay(500).ContinueWith(_ => BroadcastTopicData(producer, 100)),
+                    Task.Delay(2000).ContinueWith(_ => appLiftTime.StopApplication())
                 );
             }
             Assert.AreEqual(100, consume.Received.Count);
@@ -63,7 +62,7 @@ namespace YS.EventBus.Impl.RabbitMQ.UnitTest
                 BroadcastTopicData(producer, 100);
                 Task.WaitAll(
                      Task.Run(host.Run),
-                     Task.Run(async () => { await Task.Delay(1000); appLiftTime.StopApplication(); })
+                     Task.Delay(500).ContinueWith(_ => appLiftTime.StopApplication())
                 );
             }
             Assert.AreEqual(0, consume.Received.Count);
@@ -71,7 +70,7 @@ namespace YS.EventBus.Impl.RabbitMQ.UnitTest
         [TestMethod]
         public void ShouldGetExpectedMessageWhenBroadcastTopicGivenMutilConsume()
         {
-            var consume1 = new DataConsumer();
+            var consume = new DataConsumer();
             var consume2 = new DataConsumer();
             var consume3 = new DataConsumer();
             using (var host = new KnifeHost(
@@ -81,24 +80,24 @@ namespace YS.EventBus.Impl.RabbitMQ.UnitTest
                     ["Rabbit:Password"] = "rabbitmq",
                 }, (build, sc) =>
                 {
-                    sc.AddSingleton<IEventConsumer>(consume1);
+                    sc.AddSingleton<IEventConsumer>(consume);
                     sc.AddSingleton<IEventConsumer>(consume2);
                     sc.AddSingleton<IEventConsumer>(consume3);
                 }))
             {
                 var appLiftTime = host.Get<IHostApplicationLifetime>();
-
                 var producer = host.Get<IEventProducer>();
                 Task.WaitAll(
-                     Task.Run(host.Run),
-                     Task.Run(() => { Task.Delay(2000); BroadcastTopicData(producer, 100); }),
-                     Task.Run(async () => { await Task.Delay(5000); appLiftTime.StopApplication(); })
+                    Task.Run(host.Run),
+                    // wait 500ms for the consumes ready.
+                    Task.Delay(500).ContinueWith(_ => BroadcastTopicData(producer, 100)),
+                    Task.Delay(2000).ContinueWith(_ => appLiftTime.StopApplication())
                 );
             }
-            Assert.AreEqual(100, consume1.Received.Count);
+            Assert.AreEqual(100, consume.Received.Count);
             Assert.AreEqual(100, consume2.Received.Count);
             Assert.AreEqual(100, consume3.Received.Count);
-          
+
         }
 
         private void BroadcastTopicData(IEventProducer producer, int count)
@@ -115,7 +114,7 @@ namespace YS.EventBus.Impl.RabbitMQ.UnitTest
         }
         public class DataConsumer : BaseEventConsumer<Data>
         {
-            public DataConsumer():base(EventType.Topic)
+            public DataConsumer() : base(EventType.Topic)
             {
 
             }
