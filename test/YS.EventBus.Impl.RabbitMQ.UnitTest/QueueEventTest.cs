@@ -28,8 +28,8 @@ namespace YS.EventBus.Impl.RabbitMQ
                 EnqueueData(producer, 100);
                 Task.WaitAll(
                      Task.Run(host.Run),
-                     // wait 200 ms to consume message
-                     Task.Delay(200).ContinueWith(_ => appLiftTime.StopApplication())
+                     // wait 500 ms to consume message
+                     Task.Delay(500).ContinueWith(_ => appLiftTime.StopApplication())
                 );
             }
             Assert.AreEqual(100, consume.Received.Count);
@@ -55,8 +55,8 @@ namespace YS.EventBus.Impl.RabbitMQ
                 EnqueueData(producer, 100);
                 Task.WaitAll(
                      Task.Run(host.Run),
-                     // wait 200 ms to consume message
-                     Task.Delay(200).ContinueWith(_ => appLiftTime.StopApplication())
+                     // wait 500 ms to consume message
+                     Task.Delay(500).ContinueWith(_ => appLiftTime.StopApplication())
                 );
             }
             var consumeCount = consume1.Received.Count + consume2.Received.Count + consume3.Received.Count;

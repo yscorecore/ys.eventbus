@@ -27,8 +27,8 @@ namespace YS.EventBus.Impl.RabbitMQ
                 var producer = host.Get<IEventProducer>();
                 Task.WaitAll(
                     Task.Run(host.Run),
-                    // wait 500ms for the consumes ready.
-                    Task.Delay(500).ContinueWith(_ => BroadcastTopicData(producer, 100)),
+                    // wait 800ms for the consumes ready.
+                    Task.Delay(800).ContinueWith(_ => BroadcastTopicData(producer, 100)),
                     Task.Delay(2000).ContinueWith(_ => appLiftTime.StopApplication())
                 );
             }
@@ -52,7 +52,7 @@ namespace YS.EventBus.Impl.RabbitMQ
                 BroadcastTopicData(producer, 100);
                 Task.WaitAll(
                      Task.Run(host.Run),
-                     Task.Delay(500).ContinueWith(_ => appLiftTime.StopApplication())
+                     Task.Delay(800).ContinueWith(_ => appLiftTime.StopApplication())
                 );
             }
             Assert.AreEqual(0, consume.Received.Count);
@@ -75,8 +75,8 @@ namespace YS.EventBus.Impl.RabbitMQ
                 var producer = host.Get<IEventProducer>();
                 Task.WaitAll(
                     Task.Run(host.Run),
-                    // wait 500ms for the consumes ready.
-                    Task.Delay(500).ContinueWith(_ => BroadcastTopicData(producer, 100)),
+                    // wait 800ms for the consumes ready.
+                    Task.Delay(800).ContinueWith(_ => BroadcastTopicData(producer, 100)),
                     Task.Delay(2000).ContinueWith(_ => appLiftTime.StopApplication())
                 );
             }
