@@ -26,7 +26,7 @@ namespace YS.EventBus.Impl.RabbitMQ
         {
             DockerCompose.Down();
         }
-        private static void StartContainer(uint port,uint managePort,string password)
+        private static void StartContainer(uint port, uint managePort, string password)
         {
             DockerCompose.Up(new Dictionary<string, object>
             {

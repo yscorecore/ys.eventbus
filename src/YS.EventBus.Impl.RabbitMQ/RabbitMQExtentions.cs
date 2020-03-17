@@ -16,7 +16,7 @@ namespace YS.EventBus.Impl.RabbitMQ
         }
         public static string TemporaryQueueDeclareAndBind(this IModel model, string exchange)
         {
-           var queueInfo= model.QueueDeclare("", true, false, true, null);
+            var queueInfo = model.QueueDeclare("", true, false, true, null);
             model.QueueBind(queueInfo.QueueName, exchange, exchange, null);
             return queueInfo.QueueName;
         }

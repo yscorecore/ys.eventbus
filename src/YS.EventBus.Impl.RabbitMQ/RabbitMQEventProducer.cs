@@ -34,7 +34,7 @@ namespace YS.EventBus.Impl.RabbitMQ
                     // 声明queue，防止还没有Consumer的时候消息丢失
                     channel.QueueDeclareAndBind(eventItem.Exchange);
                 }
-               
+
 
                 var properties = channel.CreateBasicProperties();
                 properties.Persistent = true;

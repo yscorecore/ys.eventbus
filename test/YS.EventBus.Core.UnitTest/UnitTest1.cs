@@ -8,10 +8,10 @@ namespace YS.EventBus.Core.UnitTest
         [TestMethod]
         public void TestMethod1()
         {
-           var producer = this.Get<IEventProducer>();
-           var consumer = this.Get<IEventConsumer>();
-           //producer.Publish("Hello,World");
-           //consumer.Subscribe<Message>();
+            var producer = this.Get<IEventProducer>();
+            var consumer = this.Get<IEventConsumer>();
+            //producer.Publish("Hello,World");
+            //consumer.Subscribe<Message>();
 
         }
 

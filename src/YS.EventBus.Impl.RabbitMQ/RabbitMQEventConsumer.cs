@@ -90,7 +90,7 @@ namespace YS.EventBus.Impl.RabbitMQ
                 {
                     channel.ExchangeDeclare(consume.Exchange, consume.EventType);
 
-                    var queueName= consume.EventType == EventType.Queue ?
+                    var queueName = consume.EventType == EventType.Queue ?
                         channel.QueueDeclareAndBind(consume.Exchange) :
                         channel.TemporaryQueueDeclareAndBind(consume.Exchange);
                     var consumeTag = channel.BasicConsume(queueName, false, eventingBasicConsumer);
