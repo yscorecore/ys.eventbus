@@ -59,9 +59,6 @@ namespace YS.EventBus.Impl.RabbitMQ
                      Task.Delay(200).ContinueWith(_ => appLiftTime.StopApplication())
                 );
             }
-            Assert.IsTrue(consume1.Received.Count > 0);
-            Assert.IsTrue(consume2.Received.Count > 0);
-            Assert.IsTrue(consume3.Received.Count > 0);
             var consumeCount = consume1.Received.Count + consume2.Received.Count + consume3.Received.Count;
             Assert.AreEqual(100, consumeCount);
             var allReceived = consume1.Received.Concat(consume2.Received).Concat(consume3.Received);
