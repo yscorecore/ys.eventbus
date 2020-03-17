@@ -8,7 +8,7 @@ using Knife.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-namespace YS.EventBus.Impl.RabbitMQ.UnitTest
+namespace YS.EventBus.Impl.RabbitMQ
 {
     [TestClass]
     public class QueueEventTest
@@ -18,12 +18,7 @@ namespace YS.EventBus.Impl.RabbitMQ.UnitTest
         public void ShouldGetExpectedMessageWhenEnqueueGivenOneConsume()
         {
             var consume = new DataConsumer();
-            using (var host = new KnifeHost(
-                new Dictionary<string, object>
-                {
-                    ["Rabbit:UserName"] = "rabbitmq",
-                    ["Rabbit:Password"] = "rabbitmq",
-                }, (build, sc) =>
+            using (var host = new KnifeHost(new string[0], (build, sc) =>
                 {
                     sc.AddSingleton<IEventConsumer>(consume);
                 }))
@@ -48,12 +43,7 @@ namespace YS.EventBus.Impl.RabbitMQ.UnitTest
             var consume1 = new DataConsumer();
             var consume2 = new DataConsumer();
             var consume3 = new DataConsumer();
-            using (var host = new KnifeHost(
-                new Dictionary<string, object>
-                {
-                    ["Rabbit:UserName"] = "rabbitmq",
-                    ["Rabbit:Password"] = "rabbitmq",
-                }, (build, sc) =>
+            using (var host = new KnifeHost(new string[0], (build, sc) =>
                 {
                     sc.AddSingleton<IEventConsumer>(consume1);
                     sc.AddSingleton<IEventConsumer>(consume2);

@@ -6,8 +6,8 @@ services:
     environment:
       RABBITMQ_ERLANG_COOKIE: "SWQOKODSQALRPCLNMEQG"
       RABBITMQ_DEFAULT_USER: "rabbitmq"
-      RABBITMQ_DEFAULT_PASS: "rabbitmq"
+      RABBITMQ_DEFAULT_PASS: "${RABBIT_PASS:-rabbitmq}"
       RABBITMQ_DEFAULT_VHOST: "/"
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - "${RABBIT_PORT:-5672}:5672"
+      - "${RABBIT_MAN_PORT:-15672}:15672"

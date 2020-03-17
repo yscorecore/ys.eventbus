@@ -8,7 +8,7 @@ using Knife.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-namespace YS.EventBus.Impl.RabbitMQ.UnitTest
+namespace YS.EventBus.Impl.RabbitMQ
 {
     [TestClass]
     public class TopicEventTest
@@ -18,12 +18,7 @@ namespace YS.EventBus.Impl.RabbitMQ.UnitTest
         public void ShouldGetExpectedMessageWhenBroadcastTopicGivenOneConsume()
         {
             var consume = new DataConsumer();
-            using (var host = new KnifeHost(
-                new Dictionary<string, object>
-                {
-                    ["Rabbit:UserName"] = "rabbitmq",
-                    ["Rabbit:Password"] = "rabbitmq",
-                }, (build, sc) =>
+            using (var host = new KnifeHost(new string[0], (build, sc) =>
                 {
                     sc.AddSingleton<IEventConsumer>(consume);
                 }))
@@ -47,12 +42,7 @@ namespace YS.EventBus.Impl.RabbitMQ.UnitTest
         public void ShouldGetZeroMessageWhenBroadcastTopicBeforeConsume()
         {
             var consume = new DataConsumer();
-            using (var host = new KnifeHost(
-                new Dictionary<string, object>
-                {
-                    ["Rabbit:UserName"] = "rabbitmq",
-                    ["Rabbit:Password"] = "rabbitmq",
-                }, (build, sc) =>
+            using (var host = new KnifeHost(new string[0], (build, sc) =>
                 {
                     sc.AddSingleton<IEventConsumer>(consume);
                 }))
@@ -67,18 +57,14 @@ namespace YS.EventBus.Impl.RabbitMQ.UnitTest
             }
             Assert.AreEqual(0, consume.Received.Count);
         }
+
         [TestMethod]
         public void ShouldGetExpectedMessageWhenBroadcastTopicGivenMutilConsume()
         {
             var consume = new DataConsumer();
             var consume2 = new DataConsumer();
             var consume3 = new DataConsumer();
-            using (var host = new KnifeHost(
-                new Dictionary<string, object>
-                {
-                    ["Rabbit:UserName"] = "rabbitmq",
-                    ["Rabbit:Password"] = "rabbitmq",
-                }, (build, sc) =>
+            using (var host = new KnifeHost(new string[0], (build, sc) =>
                 {
                     sc.AddSingleton<IEventConsumer>(consume);
                     sc.AddSingleton<IEventConsumer>(consume2);
