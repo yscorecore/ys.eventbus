@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using Knife.Hosting;
+using YS.Knife.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -23,8 +23,8 @@ namespace YS.EventBus.Impl.RabbitMQ
                     sc.AddSingleton<IEventConsumer>(consume);
                 }))
             {
-                var appLiftTime = host.Get<IHostApplicationLifetime>();
-                var producer = host.Get<IEventProducer>();
+                var appLiftTime = host.GetService<IHostApplicationLifetime>();
+                var producer = host.GetService<IEventProducer>();
                 Task.WaitAll(
                     Task.Run(host.Run),
                     // wait 800ms for the consumes ready.
@@ -47,8 +47,8 @@ namespace YS.EventBus.Impl.RabbitMQ
                     sc.AddSingleton<IEventConsumer>(consume);
                 }))
             {
-                var appLiftTime = host.Get<IHostApplicationLifetime>();
-                var producer = host.Get<IEventProducer>();
+                var appLiftTime = host.GetService<IHostApplicationLifetime>();
+                var producer = host.GetService<IEventProducer>();
                 BroadcastTopicData(producer, 100);
                 Task.WaitAll(
                      Task.Run(host.Run),
@@ -71,8 +71,8 @@ namespace YS.EventBus.Impl.RabbitMQ
                     sc.AddSingleton<IEventConsumer>(consume3);
                 }))
             {
-                var appLiftTime = host.Get<IHostApplicationLifetime>();
-                var producer = host.Get<IEventProducer>();
+                var appLiftTime = host.GetService<IHostApplicationLifetime>();
+                var producer = host.GetService<IEventProducer>();
                 Task.WaitAll(
                     Task.Run(host.Run),
                     // wait 800ms for the consumes ready.
@@ -88,7 +88,7 @@ namespace YS.EventBus.Impl.RabbitMQ
 
         private void BroadcastTopicData(IEventProducer producer, int count)
         {
-            Enumerable.Range(0, count).ForEach(async (i) =>
+            Enumerable.Range(0, count).ToList().ForEach(async (i) =>
             {
                 await producer.BroadcastTopic(new Data { IntProp = i, StrProp = DateTime.Now.ToLongTimeString() });
             });

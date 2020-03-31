@@ -1,4 +1,4 @@
-﻿using System;
+﻿using YS.Knife;
 
 namespace YS.EventBus
 {

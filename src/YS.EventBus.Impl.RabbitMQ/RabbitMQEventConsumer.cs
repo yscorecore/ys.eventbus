@@ -11,9 +11,11 @@ using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System.Collections.Concurrent;
+using YS.Knife;
+
 namespace YS.EventBus.Impl.RabbitMQ
 {
-    [HostServiceClass]
+    [HostedClass]
 
     public sealed class RabbitMQEventConsumer : BackgroundService
     {
