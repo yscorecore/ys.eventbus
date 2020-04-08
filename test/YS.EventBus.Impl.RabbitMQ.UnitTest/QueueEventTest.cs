@@ -29,7 +29,7 @@ namespace YS.EventBus.Impl.RabbitMQ
                 Task.WaitAll(
                      Task.Run(host.Run),
                      // wait 500 ms to consume message
-                     Task.Delay(500).ContinueWith(_ => appLiftTime.StopApplication())
+                     Task.Delay(1500).ContinueWith(_ => appLiftTime.StopApplication())
                 );
             }
             Assert.AreEqual(100, consume.Received.Count);
