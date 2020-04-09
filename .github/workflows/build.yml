@@ -14,6 +14,8 @@ jobs:
     steps:
     - name: Checkout Code
       uses: actions/checkout@v1
+    - name: Echo branch info
+      uses: echo ${{github.ref}}
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
