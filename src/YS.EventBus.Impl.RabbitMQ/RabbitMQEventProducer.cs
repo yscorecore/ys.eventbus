@@ -18,10 +18,7 @@ namespace YS.EventBus.Impl.RabbitMQ
         }
         public Task Publish(EventItem eventItem)
         {
-            if (eventItem == null)
-            {
-                throw new ArgumentNullException(nameof(eventItem));
-            }
+            _ = eventItem ?? throw new ArgumentNullException(nameof(eventItem));
             if (eventItem.Data == null)
             {
                 return Task.CompletedTask;
