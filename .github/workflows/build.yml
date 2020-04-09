@@ -9,6 +9,11 @@ on:
     branches: 
       - master
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+    - name: 01 echo hello
+      run: echo "hello"    
   build:
     runs-on: ubuntu-latest
     steps:
