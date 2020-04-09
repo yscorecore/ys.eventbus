@@ -2,7 +2,7 @@ name: build
 on:
   push:
     branches-ignore:
-      - "refs/pull/*"
+      - "refs/pull/**"
     tags-ignore:
       - "*"  
   pull_request:
