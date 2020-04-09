@@ -8,10 +8,7 @@ namespace YS.EventBus
     {
         public static Task BroadcastTopic<T>(this IEventProducer producer, T data, string exchange = null)
         {
-            if (producer == null)
-            {
-                throw new ArgumentNullException(nameof(producer));
-            }
+            _ = producer ?? throw new ArgumentNullException(nameof(producer));
             return producer.Publish(new EventItem
             {
                 EventType = EventType.Topic,
@@ -21,10 +18,7 @@ namespace YS.EventBus
         }
         public static Task Enqueue<T>(this IEventProducer producer, T data, string exchange = null)
         {
-            if (producer == null)
-            {
-                throw new ArgumentNullException(nameof(producer));
-            }
+            _ = producer ?? throw new ArgumentNullException(nameof(producer));
             return producer.Publish(new EventItem
             {
                 EventType = EventType.Queue,

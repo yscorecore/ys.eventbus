@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using YS.Knife;
+﻿using YS.Knife;
 
 namespace YS.EventBus.Impl.RabbitMQ
 {

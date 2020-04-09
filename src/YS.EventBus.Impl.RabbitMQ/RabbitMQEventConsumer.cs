@@ -33,14 +33,8 @@ namespace YS.EventBus.Impl.RabbitMQ
         private IModel channel;
         public RabbitMQEventConsumer(ILogger<RabbitMQEventConsumer> logger, IOptions<EventBusOptions> eventBusOptions, IOptions<RabbitOptions> rabbitOptions, IEnumerable<IEventConsumer> eventConsumers)
         {
-            if (eventBusOptions == null)
-            {
-                throw new ArgumentNullException(nameof(eventBusOptions));
-            }
-            if (rabbitOptions == null)
-            {
-                throw new ArgumentNullException(nameof(rabbitOptions));
-            }
+            _ = eventBusOptions ?? throw new ArgumentNullException(nameof(eventBusOptions));
+            _ = rabbitOptions ?? throw new ArgumentNullException(nameof(rabbitOptions));
             this.logger = logger;
             this.eventBusSettings = eventBusOptions.Value;
             this.rabbitSettings = rabbitOptions.Value;

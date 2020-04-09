@@ -16,10 +16,7 @@ namespace YS.EventBus.Impl.RabbitMQ
 
         public RabbitModelPooledObjectPolicy(IOptions<RabbitOptions> rabbitOptions)
         {
-            if (rabbitOptions == null)
-            {
-                throw new ArgumentNullException(nameof(rabbitOptions));
-            }
+            _ = rabbitOptions ?? throw new ArgumentNullException(nameof(rabbitOptions));
             rabbitSettings = rabbitOptions.Value;
             connection = GetConnection();
         }
