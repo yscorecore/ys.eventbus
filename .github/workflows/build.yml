@@ -14,8 +14,10 @@ jobs:
     steps:
     - name: Checkout Code
       uses: actions/checkout@v1
-    - name: Echo branch info
-      uses: echo ${{github.ref}}
+    - name: Dump GitHub context
+      env:
+        GITHUB_CONTEXT: ${{ toJson(github) }}
+      run: echo "$GITHUB_CONTEXT"
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
