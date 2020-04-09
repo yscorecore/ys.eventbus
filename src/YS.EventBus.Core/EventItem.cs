@@ -1,6 +1,4 @@
-﻿
-
-namespace YS.EventBus
+﻿namespace YS.EventBus
 {
     public class EventItem
     {
