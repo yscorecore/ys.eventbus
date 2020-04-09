@@ -1,8 +1,6 @@
 name: build
 on:
   push:
-    branches:
-      - "*"
     branches-ignore:
       - "refs/pull/*"
     tags-ignore:
