@@ -121,15 +121,14 @@ csharp_preserve_single_line_blocks = true
 dotnet_diagnostic.CA2007.severity = silent
 # CA1062: 验证公共方法的参数
 dotnet_code_quality.CA1062.exclude_extension_method_this_parameter = false
-###############################
-# VB Coding Conventions       #
-###############################
-
 # CA1819: 属性不应返回数组
 dotnet_diagnostic.CA1819.severity = silent
 
 # CA1303: 请不要将文本作为本地化参数传递
 dotnet_diagnostic.CA1303.severity = silent
+
+# CA2227: 集合属性应为只读
+dotnet_diagnostic.CA2227.severity = silent
 
 [*.vb]
 # Modifier preferences
