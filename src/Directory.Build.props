@@ -6,15 +6,12 @@
         <Product>QuickCoreCore</Product>
         <PackageIcon>icon.png</PackageIcon>
         <RepositoryType>git</RepositoryType>
-        <RepositoryUrl></RepositoryUrl>
-        <PackageProjectUrl></PackageProjectUrl>
-        <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
         <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
         <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
         <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.8">
+        <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="3.0.0">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
         </PackageReference>
